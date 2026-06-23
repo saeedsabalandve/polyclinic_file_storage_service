@@ -1,0 +1,72 @@
+# .env.example
+# Server Configuration
+SERVER_PORT=8080
+ENVIRONMENT=development
+
+# AWS Configuration
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your_access_key_here
+AWS_SECRET_ACCESS_KEY=your_secret_key_here
+S3_BUCKET_PREFIX=polyclinic
+S3_PRESIGNED_EXPIRY=60m
+
+# Alternative S3 endpoint (for MinIO/local testing)
+# S3_ENDPOINT=http://localhost:9000
+# S3_USE_PATH_STYLE=true
+
+# Database Configuration
+DATABASE_URL=postgres://polyclinic:password@localhost:5432/polyclinic_storage?sslmode=disable
+DB_MAX_CONNS=25
+DB_MIN_CONNS=5
+
+# Redis Configuration
+REDIS_URL=redis://localhost:6379/0
+REDIS_PASSWORD=
+REDIS_DB=0
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+JWT_ACCESS_TOKEN_EXP=15m
+JWT_REFRESH_TOKEN_EXP=7d
+
+# File Limits
+MAX_FILE_SIZE=5120  # 5GB in MB
+ALLOWED_EXTENSIONS=dcm,dicom,jpg,jpeg,png,pdf,doc,docx,zip
+ALLOWED_MIME_TYPES=application/dicom,image/jpeg,image/png,application/pdf,application/zip
+MAX_FILES_PER_REQUEST=10
+
+# Upload Configuration
+UPLOAD_PART_SIZE=5  # MB
+UPLOAD_CONCURRENCY=5
+UPLOAD_TIMEOUT=30m
+
+# Rate Limiting
+RATE_LIMIT_ENABLED=true
+RATE_LIMIT_RPM=100
+
+# Feature Flags
+ENABLE_AUDIT_LOG=true
+ENABLE_VERSIONING=true
+ENABLE_COMPRESSION=false
+ENABLE_ENCRYPTION=true
+ENABLE_CDN=false
+
+# Encryption
+ENCRYPTION_TYPE=SSE-S3  # Options: SSE-S3, SSE-KMS
+KMS_KEY_ID=
+
+# CDN Configuration
+CDN_DOMAIN=
+
+# Lifecycle Configuration
+ENABLE_LIFECYCLE=true
+LIFECYCLE_IA_DAYS=30
+LIFECYCLE_GLACIER_DAYS=90
+LIFECYCLE_EXPIRATION_DAYS=365
+
+# CORS Configuration
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080
+
+# Logging
+LOG_LEVEL=info
+LOG_FORMAT=json

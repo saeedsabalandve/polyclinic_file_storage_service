@@ -1,0 +1,64 @@
+# .gitignore
+# Dependencies
+vendor/
+node_modules/
+
+# Build output
+/bin/
+/dist/
+/build/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+*.out
+
+# Go workspace
+go.work
+
+# Environment files
+.env
+.env.local
+.env.production
+*.env.local
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+/tmp
+
+# Docker
+docker-compose.override.yml
+
+# Coverage
+coverage.out
+coverage.html
+
+# Binary
+polyclinic-file-storage
+
+# AWS credentials
+.aws/
+credentials
+config
+
+# Certificates
+*.pem
+*.key
+*.crt

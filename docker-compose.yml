@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  file-storage-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: file-storage-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - ENVIRONMENT=development
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET_PREFIX=polyclinic
+      - DATABASE_URL=postgres://polyclinic:password@postgres:5432/polyclinic_storage?sslmode=disable
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-production}
+      - MAX_FILE_SIZE=5120
+      - ALLOWED_EXTENSIONS=dcm,dicom,jpg,jpeg,png,pdf,doc,docx
+      - ENABLE_AUDIT_LOG=true
+      - ENABLE_ENCRYPTION=true
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - polyclinic-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: file-storage-postgres
+    environment:
+      - POSTGRES_USER=polyclinic
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=polyclinic_storage
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - polyclinic-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U polyclinic -d polyclinic_storage"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: file-storage-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    volumes:
+      - redis_data:/data
+    networks:
+      - polyclinic-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: MinIO for local S3-compatible storage
+  minio:
+    image: minio/minio:latest
+    container_name: file-storage-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - polyclinic-network
+    profiles:
+      - local-s3
+
+networks:
+  polyclinic-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
